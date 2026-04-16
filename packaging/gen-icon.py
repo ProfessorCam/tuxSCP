@@ -1,0 +1,100 @@
+#!/usr/bin/env python3
+"""Generate a TuxSCP SVG icon and convert to PNG sizes needed for packaging."""
+import subprocess
+import os
+
+# TuxSCP icon: modern rounded-square app icon
+# Two overlapping folders (local ↔ remote) with a double-headed arrow and padlock
+SVG = """<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <!-- Deep blue-to-teal gradient background -->
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%"   style="stop-color:#1565C0" />
+      <stop offset="100%" style="stop-color:#00838F" />
+    </linearGradient>
+    <!-- Subtle inner shadow on top edge -->
+    <linearGradient id="shine" x1="0%" y1="0%" x2="0%" y2="40%">
+      <stop offset="0%"   style="stop-color:#ffffff;stop-opacity:0.18" />
+      <stop offset="100%" style="stop-color:#ffffff;stop-opacity:0" />
+    </linearGradient>
+  </defs>
+
+  <!-- Rounded-square background -->
+  <rect width="64" height="64" rx="14" ry="14" fill="url(#bg)" />
+  <!-- Subtle shine overlay -->
+  <rect width="64" height="64" rx="14" ry="14" fill="url(#shine)" />
+
+  <!-- Left folder (local) -->
+  <rect x="6" y="24" width="20" height="15" rx="2" ry="2"
+        fill="none" stroke="#ffffff" stroke-width="2.2" opacity="0.95"/>
+  <path d="M6,24 L6,21 Q6,19 8,19 L14,19 L16,21 L26,21 L26,24"
+        fill="none" stroke="#ffffff" stroke-width="2.2"
+        stroke-linejoin="round" opacity="0.95"/>
+
+  <!-- Right folder (remote) -->
+  <rect x="38" y="24" width="20" height="15" rx="2" ry="2"
+        fill="none" stroke="#ffffff" stroke-width="2.2" opacity="0.95"/>
+  <path d="M38,24 L38,21 Q38,19 40,19 L46,19 L48,21 L58,21 L58,24"
+        fill="none" stroke="#ffffff" stroke-width="2.2"
+        stroke-linejoin="round" opacity="0.95"/>
+
+  <!-- Double-headed transfer arrow -->
+  <line x1="26" y1="31.5" x2="38" y2="31.5"
+        stroke="#FFD54F" stroke-width="2.5" stroke-linecap="round"/>
+  <!-- Right arrowhead -->
+  <polyline points="35,28.5 38,31.5 35,34.5"
+        fill="none" stroke="#FFD54F" stroke-width="2.5"
+        stroke-linejoin="round" stroke-linecap="round"/>
+  <!-- Left arrowhead -->
+  <polyline points="29,28.5 26,31.5 29,34.5"
+        fill="none" stroke="#FFD54F" stroke-width="2.5"
+        stroke-linejoin="round" stroke-linecap="round"/>
+
+  <!-- Padlock (centred below arrow, indicates SSH encryption) -->
+  <!-- Shackle -->
+  <path d="M28,47 L28,44 Q28,40 32,40 Q36,40 36,44 L36,47"
+        fill="none" stroke="#ffffff" stroke-width="2"
+        stroke-linecap="round" opacity="0.9"/>
+  <!-- Lock body -->
+  <rect x="26" y="47" width="12" height="9" rx="2" ry="2"
+        fill="#ffffff" opacity="0.9"/>
+  <!-- Keyhole -->
+  <circle cx="32" cy="51" r="1.8" fill="#1565C0"/>
+  <rect x="31.1" y="52" width="1.8" height="2.5" rx="0.7" fill="#1565C0"/>
+</svg>"""
+
+os.makedirs("icons", exist_ok=True)
+with open("icons/tuxscp.svg", "w") as f:
+    f.write(SVG)
+print("Written icons/tuxscp.svg")
+
+# Convert to various PNG sizes using rsvg-convert or inkscape
+for size in [16, 32, 48, 64, 128, 256, 512]:
+    out = f"icons/tuxscp_{size}.png"
+    try:
+        subprocess.run(
+            ["rsvg-convert", "-w", str(size), "-h", str(size),
+             "icons/tuxscp.svg", "-o", out],
+            check=True
+        )
+        print(f"Generated {out}")
+    except FileNotFoundError:
+        try:
+            subprocess.run(
+                ["inkscape", "--export-filename", out,
+                 f"--export-width={size}", f"--export-height={size}",
+                 "icons/tuxscp.svg"],
+                check=True
+            )
+            print(f"Generated {out}")
+        except FileNotFoundError:
+            print(f"Warning: neither rsvg-convert nor inkscape found; skipping {out}")
+
+# Copy 256px as the canonical icon
+try:
+    import shutil
+    shutil.copy("icons/tuxscp_256.png", "icons/tuxscp.png")
+    print("Copied tuxscp.png (256px canonical)")
+except FileNotFoundError:
+    pass

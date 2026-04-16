@@ -1,0 +1,14 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=TuxSCP
+GenericName=SSH/SFTP Client
+Comment=Native Linux SSH, SFTP and FTP client
+Exec=tuxscp %u
+Icon=tuxscp
+Terminal=false
+Categories=Network;FileTransfer;GTK;
+Keywords=ssh;sftp;ftp;scp;file;transfer;remote;
+MimeType=x-scheme-handler/sftp;x-scheme-handler/ftp;
+StartupWMClass=tuxscp
+StartupNotify=true
