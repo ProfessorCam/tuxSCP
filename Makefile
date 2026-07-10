@@ -1,4 +1,4 @@
-.PHONY: all build release deb appimage clean test fmt check install uninstall
+.PHONY: all build release deb rpm appimage packages clean test fmt check install uninstall
 
 BINARY   := tuxscp
 PREFIX   ?= /usr/local
@@ -26,13 +26,19 @@ deb: release
 	@ls -lh release/*.deb
 
 # Build .AppImage (downloads appimagetool automatically)
+# Build .rpm package (requires rpmbuild)
+rpm: release
+	@echo "Building .rpm package v$(VERSION)..."
+	@bash packaging/build-rpm.sh
+	@ls -lh release/*.rpm
+
 appimage: release
 	@echo "Building AppImage v$(VERSION)..."
-	@bash packaging/build-appimage.sh
+	@BUNDLE_LIBS=1 bash packaging/build-appimage.sh
 	@ls -lh release/*.AppImage
 
-# Build both packages
-packages: deb appimage
+# Build all packages
+packages: deb rpm appimage
 
 # Install to PREFIX (default /usr/local)
 install: release

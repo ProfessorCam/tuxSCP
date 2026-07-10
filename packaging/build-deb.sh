@@ -65,7 +65,7 @@ fi
 cat > "$DEB_ROOT/usr/share/doc/$PKG_NAME/copyright" << 'EOF'
 Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Upstream-Name: tuxscp
-Source: https://github.com/example/tuxscp
+Source: https://github.com/ProfessorCam/tuxSCP
 
 Files: *
 Copyright: 2024 TuxSCP Contributors
@@ -84,7 +84,7 @@ Depends: libssl3 | libssl1.1, libgcc-s1
 Recommends: openssh-client
 Section: net
 Priority: optional
-Homepage: https://github.com/example/tuxscp
+Homepage: https://github.com/ProfessorCam/tuxSCP
 Description: Native Linux SSH/SFTP/FTP client
  TuxSCP is a native Linux file transfer client supporting SFTP, SCP,
  FTP and FTPS protocols. It provides a dual-pane file manager interface
