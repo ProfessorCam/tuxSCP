@@ -4027,6 +4027,7 @@ dependencies = [
  "egui_extras",
  "env_logger",
  "human_bytes",
+ "image",
  "log",
  "parking_lot",
  "rayon",

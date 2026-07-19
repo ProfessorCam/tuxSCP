@@ -15,6 +15,9 @@ fn main() -> eframe::Result<()> {
     let options = NativeOptions {
         viewport: ViewportBuilder::default()
             .with_title("TuxSCP")
+            // Must match the .desktop basename / StartupWMClass so GNOME
+            // (Wayland) can associate the window with its desktop entry icon
+            .with_app_id("tuxscp")
             .with_inner_size([1280.0, 800.0])
             .with_min_inner_size([900.0, 600.0])
             .with_drag_and_drop(true)
@@ -30,25 +33,10 @@ fn main() -> eframe::Result<()> {
 }
 
 fn load_icon() -> egui::IconData {
-    // 32x32 RGBA icon – simple blue/white "SCP" icon encoded inline
-    let size = 32usize;
-    let mut rgba = vec![0u8; size * size * 4];
-    for y in 0..size {
-        for x in 0..size {
-            let idx = (y * size + x) * 4;
-            // Blue background circle
-            let dx = x as f32 - 15.5;
-            let dy = y as f32 - 15.5;
-            let dist = (dx * dx + dy * dy).sqrt();
-            if dist < 15.0 {
-                rgba[idx] = 30;
-                rgba[idx + 1] = 100;
-                rgba[idx + 2] = 200;
-                rgba[idx + 3] = 255;
-            } else {
-                rgba[idx + 3] = 0;
-            }
-        }
-    }
-    egui::IconData { rgba, width: size as u32, height: size as u32 }
+    let bytes = include_bytes!("../packaging/icons/tuxscp_256.png");
+    let image = image::load_from_memory(bytes)
+        .expect("embedded icon is valid PNG")
+        .into_rgba8();
+    let (width, height) = image.dimensions();
+    egui::IconData { rgba: image.into_raw(), width, height }
 }

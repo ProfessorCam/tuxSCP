@@ -41,18 +41,32 @@ appimage: release
 packages: deb rpm appimage
 
 # Install to PREFIX (default /usr/local)
+ICON_SIZES := 16 32 48 64 128 256
+
 install: release
 	install -Dm755 target/release/$(BINARY)       $(DESTDIR)$(PREFIX)/bin/$(BINARY)
 	install -Dm644 packaging/tuxscp.desktop      $(DESTDIR)$(PREFIX)/share/applications/tuxscp.desktop
-	@if [ -f packaging/icons/tuxscp_256.png ]; then \
-	    install -Dm644 packaging/icons/tuxscp_256.png \
-	        $(DESTDIR)$(PREFIX)/share/icons/hicolor/256x256/apps/tuxscp.png; \
+	@for size in $(ICON_SIZES); do \
+	    if [ -f packaging/icons/tuxscp_$$size.png ]; then \
+	        install -Dm644 packaging/icons/tuxscp_$$size.png \
+	            $(DESTDIR)$(PREFIX)/share/icons/hicolor/$${size}x$${size}/apps/tuxscp.png; \
+	    fi; \
+	done
+	@if [ -f packaging/icons/tuxscp.png ]; then \
+	    install -Dm644 packaging/icons/tuxscp.png $(DESTDIR)$(PREFIX)/share/pixmaps/tuxscp.png; \
 	fi
+	-gtk-update-icon-cache -f $(DESTDIR)$(PREFIX)/share/icons/hicolor 2>/dev/null || true
+	-update-desktop-database $(DESTDIR)$(PREFIX)/share/applications 2>/dev/null || true
 
 uninstall:
 	rm -f $(DESTDIR)$(PREFIX)/bin/$(BINARY)
 	rm -f $(DESTDIR)$(PREFIX)/share/applications/tuxscp.desktop
-	rm -f $(DESTDIR)$(PREFIX)/share/icons/hicolor/256x256/apps/tuxscp.png
+	@for size in $(ICON_SIZES); do \
+	    rm -f $(DESTDIR)$(PREFIX)/share/icons/hicolor/$${size}x$${size}/apps/tuxscp.png; \
+	done
+	rm -f $(DESTDIR)$(PREFIX)/share/pixmaps/tuxscp.png
+	-gtk-update-icon-cache -f $(DESTDIR)$(PREFIX)/share/icons/hicolor 2>/dev/null || true
+	-update-desktop-database $(DESTDIR)$(PREFIX)/share/applications 2>/dev/null || true
 
 test:
 	cargo test
